@@ -18,6 +18,12 @@ public class App
    	static Logger logger = LoggerFactory.getLogger(App.class);
    	private Options opts;
    	
+   	enum OptionName {
+   		TRACELEVEL("tracelevel"), DELAY("delay");
+   		OptionName(String name) {this.name = name;}
+   		String getName() {return name;}
+   		private String name;
+   	}
    	public App() {
    		buildOptions();
    	}
@@ -36,14 +42,14 @@ public class App
     	CommandLineParser parser = new BasicParser();
     	
     	CommandLine line = parser.parse(opts, args);
-    	if (line.hasOption("d")) {
-    		changeDebugLevel(line.getOptionValue("d"));
+    	if (line.hasOption(OptionName.TRACELEVEL.getName())) {
+    		changeDebugLevel(line.getOptionValue(OptionName.TRACELEVEL.getName()));
     	}
     		//new TcpProxy(Integer.parseInt(args[0]), args[1], 
     		////		Integer.parseInt(args[2]), Integer.parseInt(args[3])).start();
     	int delay = 0;
-    	if (line.hasOption("delay"))
-    		delay = Integer.parseInt(line.getOptionValue("delay"));
+    	if (line.hasOption(OptionName.DELAY.getName()))
+    		delay = Integer.parseInt(line.getOptionValue(OptionName.DELAY.getName()));
     	new TcpMutiSessionProxy(Integer.parseInt(args[0]), args[1], 
     				Integer.parseInt(args[2]), delay).start();
     }
@@ -55,8 +61,10 @@ public class App
     
     private Options buildOptions() {
     	opts = new Options();
-    	Option logLevel = OptionBuilder.withArgName("level").hasArg().withDescription("log level").create("d");
-    	Option delay = OptionBuilder.withArgName("millisecond").hasArg().withDescription("delay unit is millisecond").create("delay");
+    	Option logLevel = OptionBuilder.withArgName("level").hasArg().withDescription("log level")
+    						.create(OptionName.TRACELEVEL.getName());
+    	Option delay = OptionBuilder.withArgName("millisecond").hasArg().withDescription("delay unit is millisecond")
+    					.create(OptionName.DELAY.getName());
     	opts.addOption(logLevel);
     	opts.addOption(delay);
     	

@@ -8,14 +8,17 @@ import java.net.*;
 import org.slf4j.*;
 
 public class TcpSession {
+	static int currentId=0;
 	static Logger logger = LoggerFactory.getLogger(TcpSession.class);
 	private SocketChannel cliSC;
 	private SocketChannel svrSC;
 	private int delay;
 	private ByteBuffer buf;
+	private int id;
 	public TcpSession(SocketChannel cliSC, SocketChannel svrSC, int delay) {
+		id = currentId++;
+		logger.debug("session {} is open", id);
 		logger.trace( "src channel is {} dst channel is {} delay is {}",cliSC ,svrSC,delay);
-//				"src channel is "+cliSC + " dst channel is "+svrSC);
 		this.cliSC = cliSC;
 		this.svrSC = svrSC;
 		this.delay = delay;
@@ -27,25 +30,26 @@ public class TcpSession {
 		try {
 			int size = channel.read(buf);
 			checkChannelOp("read", size,channel);
-			logger.trace("read data size:" + size + " from " + channel);
+			logger.trace("session {} read data size:{} from {}",id, size, channel);
 			buf.flip();
 			Thread.sleep(delay);
 			size = peer.write(buf);
 			checkChannelOp("write", size,peer);
-			logger.trace("write data size:" + size + " to " + peer);
+			logger.trace("session {} write data size:{} to {}",id, size, peer);
 		} catch (Exception e) {
 			cliSC.close();
 			svrSC.close();
+			logger.debug("session {} is closed", id);
 			throw e;
 		}
 
 	}
 	
-	public void close() throws IOException {
-		logger.trace("session is closed");
-		cliSC.close();
-		svrSC.close();
-	}
+//	public void close() throws IOException {
+//		logger.trace("session is closed");
+//		cliSC.close();
+//		svrSC.close();
+//	}
 	public SocketChannel getCliSC() {
 		return cliSC;
 	}
